@@ -372,7 +372,7 @@ O projeto está pronto para:
 - MIT
 
 ### Repositório
-- GitHub: [gabriel/aensh](https://github.com/gabriel/aensh)
+- GitHub: [aencyorganization/aensh](https://github.com/aencyorganization/aensh)
 
 ---
 

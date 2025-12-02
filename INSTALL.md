@@ -24,7 +24,7 @@ Instruções completas para instalar e usar o Aensh.
 
 #### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/gabriel/aensh.git
+git clone https://github.com/aencyorganization/aensh.git
 cd aensh
 ```
 
@@ -50,7 +50,7 @@ cargo build --release
 
 ```bash
 # Clonar repositório
-git clone https://github.com/gabriel/aensh.git
+git clone https://github.com/aencyorganization/aensh.git
 cd aensh
 
 # Executar script de instalação
@@ -235,7 +235,7 @@ Aensh está sob a licença MIT. Veja [LICENSE](LICENSE).
 
 ```bash
 # Clone
-git clone https://github.com/gabriel/aensh.git
+git clone https://github.com/aencyorganization/aensh.git
 cd aensh
 
 # Build

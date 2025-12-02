@@ -20,7 +20,7 @@ O instalador irá automaticamente:
 
 ```bash
 # Clone o repositório
-git clone https://github.com/gabriel/aensh.git
+git clone https://github.com/aencyorganization/aensh.git
 cd aensh
 
 # Compile

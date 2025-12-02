@@ -2,10 +2,10 @@
 name = "aensh"
 version = "0.2.0"
 edition = "2021"
-authors = ["Gabriel"]
+authors = ["Aency"]
 description = "A modern shell implementation in Rust"
 license = "MIT"
-repository = "https://github.com/gabriel/aensh"
+repository = "https://github.com/aencyorganization/aensh"
 
 [dependencies]
 nix = { version = "0.27", features = ["fs", "signal"] }

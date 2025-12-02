@@ -6,7 +6,7 @@
 
 set -e
 
-REPO_URL="https://github.com/gabriel/aensh"
+REPO_URL="https://github.com/aencyorganization/aensh"
 INSTALL_DIR="$HOME/.local/bin"
 CONFIG_DIR="$HOME/.config/aensh"
 
