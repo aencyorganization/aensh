@@ -1,190 +1,132 @@
 # 🚀 Aensh - A Modern Shell in Rust
 
-Um shell moderno e funcional implementado em Rust, construído do zero para demonstrar conceitos de programação de sistemas com foco em segurança, performance e usabilidade.
+Um shell moderno e funcional implementado em Rust, construído do zero com foco em segurança, performance e usabilidade.
+
+## 📦 Instalação
+
+### Instalação Rápida (Recomendado)
+
+```bash
+curl -sSL https://raw.githubusercontent.com/aencyorganization/aensh/main/install.sh | bash
+```
+
+O instalador irá automaticamente:
+- Instalar Rust/Cargo se necessário
+- Compilar o Aensh
+- Adicionar ao PATH
+- Criar diretórios de configuração
+
+### Instalação Manual
+
+```bash
+# Clone o repositório
+git clone https://github.com/gabriel/aensh.git
+cd aensh
+
+# Compile
+cargo build --release
+
+# Instale
+cp target/release/aensh ~/.local/bin/
+```
+
+## 🚀 Uso
+
+```bash
+# Iniciar o shell
+aensh
+
+# Ver ajuda
+aensh --help
+
+# Ver versão
+aensh --version
+
+# Definir como shell padrão ao abrir terminal
+aensh --default true
+
+# Remover como shell padrão
+aensh --default false
+```
 
 ## ✨ Características
 
-### 📚 Comandos de Shell
-- `help` - Mostra a lista de comandos disponíveis
-- `exit` / `quit` - Encerra o shell
+### 🎯 Navegação Avançada
+- **Setas ↑/↓** - Navegar no histórico de comandos
+- **Setas ←/→** - Mover cursor na linha
+- **Home/End** - Ir para início/fim da linha
+- **Ctrl+A/E** - Início/fim da linha
+- **Ctrl+U** - Limpar linha
+- **Ctrl+W** - Apagar palavra anterior
 
-### 🗂️ Navegação
-- `cd <diretório>` - Altera o diretório atual
-- `pwd` - Mostra o diretório atual
+### 🔗 Piping e Encadeamento
+```bash
+# Encadear comandos com &&
+echo "Hello" && echo "World"
 
-### 📁 Sistema de Arquivos
-- `ls [diretório]` - Lista arquivos e diretórios com ícones e tamanhos
-- `cat <arquivo>` - Exibe o conteúdo de arquivos
-- `mkdir <diretório>` - Cria um novo diretório
-- `touch <arquivo>` - Cria um arquivo vazio
-- `rm <arquivo/diretório>` - Remove arquivos ou diretórios
-- `cp <origem> <destino>` - Copia arquivos ou diretórios
-- `mv <origem> <destino>` - Move ou renomeia arquivos
-
-### ⚙️ Sistema
-- `echo <texto>` - Exibe texto na tela
-- `clear` - Limpa a tela
-- `info` - Mostra informações do Aensh
-- `whoami` - Mostra o usuário atual
-- `date` - Mostra a data e hora atual
-
-## 🏗️ Arquitetura
-
-A estrutura do projeto foi reorganizada para melhor hierarquia e manutenibilidade:
-
-```
-src/
-├── main.rs              # Loop principal do shell
-├── core/                # Módulos principais
-│   ├── banner.rs        # Banner de boas-vindas
-│   ├── command.rs       # Estrutura de comando
-│   ├── errors.rs        # Sistema de erros
-│   ├── input.rs         # Parser de entrada
-│   └── prompt.rs        # Construtor de prompt
-└── builtins/            # Comandos built-in
-    ├── shell/           # Comandos de shell (help, exit)
-    ├── navigation/      # Navegação (cd, pwd)
-    ├── filesystem/      # Sistema de arquivos (ls, cat, mkdir, etc)
-    └── system/          # Sistema (echo, clear, info, etc)
+# Piping de comandos
+cat arquivo.txt | grep "texto"
 ```
 
-### Tecnologias Utilizadas
-
-- **Rust 1.70+** - Linguagem de programação
-- **colored** - Colorização de saída
-- **nix** - Chamadas de sistema POSIX
-- **gethostname** - Obtenção de hostname
-- **libc** - Bindings C
-
-## 🚀 Construção e Execução
-
-### Pré-requisitos
-- Rust 1.70 ou superior
-- Cargo
-
-### Build
+### 🔌 Sistema de Plugins
+Adicione comandos personalizados sem modificar o shell:
 
 ```bash
-# Build em modo debug
-cargo build
+# Listar plugins
+plugin list
 
-# Build em modo release (otimizado)
-cargo build --release
+# Adicionar plugin
+plugin add myplugin /path/to/script "Descrição do plugin"
+
+# Remover plugin
+plugin remove myplugin
 ```
 
-### Execução
+Ou coloque scripts executáveis em `~/.config/aensh/plugins/`
 
-```bash
-# Executar diretamente
-./target/debug/aensh
+### 📚 Comandos Built-in
 
-# Ou com cargo
-cargo run
-
-# Ou com release
-./target/release/aensh
-```
-
-### Instalação
-
-```bash
-# Usar o script de instalação
-chmod +x install.sh
-./install.sh
-```
-
-## 📖 Exemplos de Uso
-
-```bash
-# Navegar entre diretórios
-gabriel machine ~ ❯ cd /tmp
-gabriel machine /tmp ❯ pwd
-/tmp
-
-# Listar arquivos
-gabriel machine /tmp ❯ ls
-📁 dir1/
-📄 file.txt (1.2KB)
-
-# Criar e manipular arquivos
-gabriel machine /tmp ❯ touch novo.txt
-✓ Arquivo novo.txt criado
-gabriel machine /tmp ❯ echo "Olá, Aensh!"
-Olá, Aensh!
-
-# Ver informações
-gabriel machine /tmp ❯ info
-══════════════════════════════════════════════════
-  Aensh - A Modern Shell in Rust
-══════════════════════════════════════════════════
-Versão: 0.2.0
-Usuário: gabriel
-Máquina: machine
-Linguagem: Rust 🦀
-══════════════════════════════════════════════════
-
-# Sair
-gabriel machine /tmp ❯ exit
-Até logo! 👋
-```
-
-## 🎨 Interface
-
-O Aensh apresenta uma interface moderna e intuitiva com:
-
-- **Prompt colorido** - Mostra usuário, máquina e diretório atual
-- **Ícones visuais** - Emojis para melhor visualização
-- **Mensagens de erro claras** - Feedback útil quando algo dá errado
-- **Cores temáticas** - Diferentes cores para diferentes tipos de saída
+| Categoria | Comandos |
+|-----------|----------|
+| **Shell** | `help`, `exit`, `quit`, `plugin` |
+| **Navegação** | `cd`, `pwd` |
+| **Arquivos** | `ls`, `cat`, `mkdir`, `touch`, `rm`, `cp`, `mv`, `find`, `grep`, `tree` |
+| **Sistema** | `echo`, `clear`, `info`, `whoami`, `date`, `stat` |
 
 ## 🔒 Segurança
 
-O Aensh implementa várias medidas de segurança:
+O Aensh bloqueia comandos nativos do shell para evitar conflitos:
+- Comandos como `bash`, `sh`, `sudo`, `apt`, etc. são bloqueados
+- Use plugins para adicionar funcionalidades extras de forma segura
+- Validação de entrada contra injeção de comandos
 
-- **Validação de entrada** - Bloqueia sequências perigosas (`&&`, `||`, `;`, `$()`)
-- **Sem execução de código arbitrário** - Comandos são validados antes da execução
-- **Memory-safe** - Rust garante segurança de memória em tempo de compilação
-- **Tratamento de sinais** - Captura SIGINT e SIGTERM corretamente
+## 📁 Estrutura de Arquivos
 
-## 📚 Próximas Melhorias
+```
+~/.config/aensh/
+├── config.json      # Configurações
+└── plugins/         # Plugins executáveis
 
-- [ ] Histórico de comandos
-- [ ] Autocompletar com Tab
-- [ ] Pipes e redirecionamento
-- [ ] Variáveis de ambiente
-- [ ] Aliases de comandos
-- [ ] Scripts shell
-- [ ] Suporte a wildcards
-- [ ] Modo interativo melhorado
+~/.aensh_history     # Histórico de comandos
+```
 
-## 🤝 Contribuindo
+## 🛠️ Desenvolvimento
 
-Contribuições são bem-vindas! Sinta-se à vontade para:
+```bash
+# Build debug
+cargo build
 
-1. Reportar bugs
-2. Sugerir novas funcionalidades
-3. Melhorar a documentação
-4. Enviar pull requests
+# Build release
+cargo build --release
+
+# Executar
+cargo run
+```
 
 ## 📄 Licença
 
-Este projeto é de código aberto e está disponível sob a licença MIT.
-
-## 🦀 Por que Rust?
-
-- **Segurança de memória** - Sem segfaults ou vazamentos de memória
-- **Performance** - Compilado para código nativo com otimizações
-- **Tooling moderno** - Cargo, rustfmt, clippy
-- **Type safety** - Erros detectados em tempo de compilação
-- **Concorrência segura** - Primitivas de concorrência thread-safe
-- **Comunidade ativa** - Ecossistema rico de bibliotecas
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, abra uma issue no repositório.
+MIT License - Veja o arquivo LICENSE para detalhes.
 
 ---
 
-**Versão:** 0.2.0  
-**Última atualização:** Dezembro 2024  
-**Desenvolvido com ❤️ em Rust**
+**Versão:** 0.2.0 | **Desenvolvido com ❤️ em Rust 🦀**

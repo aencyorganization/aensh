@@ -12,3 +12,7 @@ nix = { version = "0.27", features = ["fs", "signal"] }
 libc = "0.2"
 colored = "2.1"
 gethostname = "0.4"
+crossterm = "0.27"
+dirs = "5.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

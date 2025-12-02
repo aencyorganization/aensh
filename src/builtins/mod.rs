@@ -11,6 +11,7 @@ pub const SUPPORTED_COMMANDS: &[(&str, &str)] = &[
     ("help", "Mostra a lista de comandos disponíveis"),
     ("exit", "Encerra o shell"),
     ("quit", "Encerra o shell (alias para exit)"),
+    ("plugin", "Gerencia plugins externos"),
     
     // Navigation
     ("cd", "Altera o diretório atual"),
@@ -46,6 +47,7 @@ pub fn dispatch(command: &Command) -> AenshResult<()> {
         // Shell
         "help" => shell::help::run(&command.args),
         "exit" | "quit" => shell::exit::run(&command.args),
+        "plugin" => shell::plugin::run(&command.args),
         
         // Navigation
         "cd" => navigation::cd::run(&command.args),

@@ -1,63 +1,139 @@
 mod core;
 mod builtins;
 
-use std::io::{self, Write};
+use std::env;
 use colored::*;
-use nix::sys::signal::{self, SigHandler, Signal};
 
-use core::{show_banner, parse_input, build_prompt};
-use builtins::dispatch;
+use core::{
+    show_banner, build_prompt, 
+    parse_command_chain, execute_chain,
+    Config, PluginManager, ReadLine
+};
 
-fn setup_signal_handlers() {
-    unsafe {
-        signal::signal(Signal::SIGINT, SigHandler::Handler(handle_sigint)).expect("Failed to setup SIGINT handler");
-        signal::signal(Signal::SIGTERM, SigHandler::Handler(handle_sigterm)).expect("Failed to setup SIGTERM handler");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+fn print_help() {
+    println!("{}", "Aensh - A Modern Shell in Rust".bright_cyan().bold());
+    println!("Versão: {}", VERSION);
+    println!();
+    println!("{}", "USO:".yellow().bold());
+    println!("    aensh [OPÇÕES]");
+    println!();
+    println!("{}", "OPÇÕES:".yellow().bold());
+    println!("    {}          Mostra esta mensagem de ajuda", "--help".green());
+    println!("    {}       Mostra a versão", "--version".green());
+    println!("    {} Define Aensh como shell padrão ao iniciar terminal", "--default true".green());
+    println!("    {}  Remove Aensh como shell padrão", "--default false".green());
+    println!();
+    println!("{}", "EXEMPLOS:".yellow().bold());
+    println!("    aensh                    # Inicia o shell");
+    println!("    aensh --default true     # Define como shell padrão");
+    println!("    aensh --default false    # Remove como shell padrão");
+    println!();
+    println!("{}", "RECURSOS:".yellow().bold());
+    println!("    • Navegação com setas (histórico e cursor)");
+    println!("    • Piping de comandos (cmd1 | cmd2)");
+    println!("    • Encadeamento com && (cmd1 && cmd2)");
+    println!("    • Sistema de plugins personalizados");
+    println!();
+    println!("{}", "DIRETÓRIOS:".yellow().bold());
+    println!("    Plugins: ~/.config/aensh/plugins/");
+    println!("    Config:  ~/.config/aensh/config.json");
+    println!("    History: ~/.aensh_history");
+}
+
+fn print_version() {
+    println!("Aensh {}", VERSION);
+}
+
+fn handle_args() -> bool {
+    let args: Vec<String> = env::args().collect();
+    
+    if args.len() < 2 {
+        return false; // No args, run shell
+    }
+    
+    match args[1].as_str() {
+        "--help" | "-h" => {
+            print_help();
+            true
+        }
+        "--version" | "-v" => {
+            print_version();
+            true
+        }
+        "--default" => {
+            if args.len() < 3 {
+                eprintln!("{} --default requer 'true' ou 'false'", "Erro:".red());
+                return true;
+            }
+            
+            let mut config = Config::load();
+            match args[2].as_str() {
+                "true" | "1" | "yes" => {
+                    match config.set_default_shell(true) {
+                        Ok(_) => println!("{} Aensh definido como shell padrão!", "✓".green()),
+                        Err(e) => eprintln!("{} Falha ao configurar: {}", "✗".red(), e),
+                    }
+                }
+                "false" | "0" | "no" => {
+                    match config.set_default_shell(false) {
+                        Ok(_) => println!("{} Aensh removido como shell padrão.", "✓".green()),
+                        Err(e) => eprintln!("{} Falha ao configurar: {}", "✗".red(), e),
+                    }
+                }
+                other => {
+                    eprintln!("{} Valor inválido '{}'. Use 'true' ou 'false'.", "Erro:".red(), other);
+                }
+            }
+            true
+        }
+        _ => false
     }
 }
 
-extern "C" fn handle_sigint(_signal: libc::c_int) {
-    println!("\n{} Use 'exit' para sair.", "Interrompido".yellow());
-    // Re-setup handler to catch future Ctrl+C
-    setup_signal_handlers();
-}
-
-extern "C" fn handle_sigterm(_signal: libc::c_int) {
-    println!("\n{} Encerrando...", "Aensh".red());
-    std::process::exit(0);
-}
-
 fn main() {
+    // Handle command line arguments
+    if handle_args() {
+        return;
+    }
+    
     show_banner();
     
-    setup_signal_handlers();
+    let plugin_manager = PluginManager::new();
+    let mut readline = ReadLine::new();
     
     loop {
         let prompt = build_prompt();
-        print!("{}", prompt);
-        io::stdout().flush().unwrap();
-
-        let mut input = String::new();
-        match io::stdin().read_line(&mut input) {
-            Ok(0) => {
-                println!("\n{}", "Goodbye!".bright_green());
+        
+        let input = match readline.read_line(&prompt) {
+            Ok(Some(line)) => line,
+            Ok(None) => {
+                // EOF (Ctrl+D)
+                println!("{}", "Goodbye!".bright_green());
                 break;
             }
-            Ok(_) => (),
             Err(e) => {
-                eprintln!("{} Error reading input: {}", "Error".red(), e);
+                eprintln!("{} Erro de leitura: {}", "✗".red(), e);
                 continue;
             }
+        };
+
+        let trimmed = input.trim();
+        if trimmed.is_empty() {
+            continue;
         }
 
-        let command = match parse_input(&input) {
-            Ok(cmd) => cmd,
+        // Parse and execute command chain
+        let chain = match parse_command_chain(trimmed, &plugin_manager) {
+            Ok(chain) => chain,
             Err(err) => {
                 err.print();
                 continue;
             }
         };
 
-        if let Err(err) = dispatch(&command) {
+        if let Err(err) = execute_chain(chain, &plugin_manager) {
             err.print();
         }
     }
