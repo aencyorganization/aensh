@@ -8,6 +8,7 @@ use std::io::Write;
 pub enum PipelineSegment {
     Builtin(Command),
     Plugin(Command),
+    External(Command),
 }
 
 #[derive(Debug)]
@@ -161,7 +162,8 @@ fn parse_single_command(input: &str, plugin_manager: &PluginManager) -> AenshRes
         )));
     }
     
-    Err(AenshError::InvalidCommand(name))
+    // If not builtin, plugin, or blocked - execute as external command
+    Ok(PipelineSegment::External(command))
 }
 
 pub fn execute_chain(chain: CommandChain, plugin_manager: &PluginManager) -> AenshResult<()> {
@@ -218,6 +220,16 @@ fn execute_pipeline(pipeline: Pipeline, plugin_manager: &PluginManager) -> Aensh
                     prev_output = Some(output);
                 }
             }
+            PipelineSegment::External(cmd) => {
+                let output = crate::core::external::execute_external_with_capture(&cmd.name, &cmd.args)?;
+                
+                if is_last {
+                    print!("{}", String::from_utf8_lossy(&output));
+                    std::io::stdout().flush().ok();
+                } else {
+                    prev_output = Some(output);
+                }
+            }
         }
     }
     
@@ -236,6 +248,9 @@ fn execute_segment(
         }
         PipelineSegment::Plugin(cmd) => {
             plugin_manager.execute(&cmd.name, &cmd.args)
+        }
+        PipelineSegment::External(cmd) => {
+            crate::core::external::execute_external(&cmd.name, &cmd.args)
         }
     }
 }

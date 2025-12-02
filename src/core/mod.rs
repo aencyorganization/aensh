@@ -2,6 +2,7 @@ pub mod banner;
 pub mod command;
 pub mod config;
 pub mod errors;
+pub mod external;
 pub mod history;
 pub mod pipeline;
 pub mod plugins;
