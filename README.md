@@ -1,79 +1,190 @@
-<div align="center">
-	<br />
-	<p>
-		<a href="https://github.com/aencyco/aencyapp/"><img src="https://aencyold.netlify.app/cdn/img/aency_banner_rc.png" width="546" alt="aency_banner" /></a>
-	</p>
-	<br />
-	<p>
-</div>
+# 🚀 Aensh - A Modern Shell in Rust
 
-# O AENSH ESTÁ SENDO RECONSTRUÍDO DO ZERO EM RUST.
+Um shell moderno e funcional implementado em Rust, construído do zero para demonstrar conceitos de programação de sistemas com foco em segurança, performance e usabilidade.
 
-## Sobre
-> [!NOTE]
-> Esse repositório contém o código fonte do Aensh. O projeto Aensh é um shell para iniciantes no mundo linux ou terminal, contendo utilidades para os usuários aproveitarem do sistema de uma maneira simples, moderna e funcional. Softwares e ferramentas podem ser muito pesados e exigirem muitos recursos de sua máquina, por isso existem os tão famosos apps TUI/CLI.
+## ✨ Características
 
-## Tabela de Conteúdos
-- Básico
-  - [Sobre](#sobre)
-  - [TODO](#todo)
-- Instalação
-  - [Instalação](#instalação)
-  - [Requisitos](#requisitos)
+### 📚 Comandos de Shell
+- `help` - Mostra a lista de comandos disponíveis
+- `exit` / `quit` - Encerra o shell
 
-## Instalação
-> [!WARNING]
-> Antes de começar a instalação do aency.app, verifique se seu dispositivo atende aos seguintes requisitos.
+### 🗂️ Navegação
+- `cd <diretório>` - Altera o diretório atual
+- `pwd` - Mostra o diretório atual
 
-### Requisitos
-- Você tem uma máquina com `Windows ou Linux`.
-- Ter o `C++17` pra cima.
-- Ter a `FiraCode Nerd Font` instalada em seu sistema.
-- Ter o terminal `Kitty` instalado em seu sistema.
+### 📁 Sistema de Arquivos
+- `ls [diretório]` - Lista arquivos e diretórios com ícones e tamanhos
+- `cat <arquivo>` - Exibe o conteúdo de arquivos
+- `mkdir <diretório>` - Cria um novo diretório
+- `touch <arquivo>` - Cria um arquivo vazio
+- `rm <arquivo/diretório>` - Remove arquivos ou diretórios
+- `cp <origem> <destino>` - Copia arquivos ou diretórios
+- `mv <origem> <destino>` - Move ou renomeia arquivos
 
-> **Instalação Universal**
-> Baixe o aencyaensh na sua pasta /home/ e execute o seguinte comando:
-```
+### ⚙️ Sistema
+- `echo <texto>` - Exibe texto na tela
+- `clear` - Limpa a tela
+- `info` - Mostra informações do Aensh
+- `whoami` - Mostra o usuário atual
+- `date` - Mostra a data e hora atual
+
+## 🏗️ Arquitetura
+
+A estrutura do projeto foi reorganizada para melhor hierarquia e manutenibilidade:
 
 ```
-
-<!--
-## Atalhos do Shanny
-
-| Atalho | Descrição |
-| --- | ----------- |
-| <kbd>^</kbd>+<kbd>Shift</kdb>+<kbd>C</kdb> | Copia um texto no Shanny. |
-| <kbd>^</kbd>+<kbd>Shift</kdb>+<kbd>X</kdb> | Recorta um texto no Shanny. |
-| <kbd>^</kbd>+<kbd>Shift</kdb>+<kbd>V</kdb> | Cola um texto no Shanny |
-| <kbd>^</kbd>+<kbd>Shift</kdb>+<kbd>A</kdb> | Seleciona todos os textos no Shanny. |
-| <kbd>^</kbd>+<kbd>Shfit</kdb>+<kbd>L</kdb> | Limpa a tela do Shanny. |
-| <kbd>ALT</kbd>+<kbd>F4</kdb> | Finaliza o processo do Shanny. | -->
-
-## TODO (0.7)
-- [x] Comandos Básicos Funcionais
-- [x] Cores na Digitação de Texto
-- [x] Integração TAB + FZF
-- [x] Sistema de Histórico
-- [x] Sistema de Aliases
-- [ ] Integração com IA (Gemini & LLama 3)
-- [ ] Neopkg (Package Manager)
-
-## Contribuindo
-> [!NOTE]
-> Este é um jeito resumido de como você pode contribuir. Como alternativa, consulte a documentação do GitHub em [como criar uma solicitação pull](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request). Para contribuir com o desenvolvimento do Aensh de uma maneira mais direta, siga as etapas a seguir corretamente.
-
-> [!TIP]
-> Você também pode abrir um issue para fazer sugestões, reportar bugs, apresentar opiniões e etc!
-
-```
-1. Bifurque este repositório.
-2. Crie um branch: `git checkout -b <nome_branch>`.
-3. Faça suas alterações e confirme-as: `git commit -m '<mensagem_commit>'`
-4. Envie para o branch original: `git push origin <nome_do_projeto> / <local>`
-5. Crie a solicitação de pull.
+src/
+├── main.rs              # Loop principal do shell
+├── core/                # Módulos principais
+│   ├── banner.rs        # Banner de boas-vindas
+│   ├── command.rs       # Estrutura de comando
+│   ├── errors.rs        # Sistema de erros
+│   ├── input.rs         # Parser de entrada
+│   └── prompt.rs        # Construtor de prompt
+└── builtins/            # Comandos built-in
+    ├── shell/           # Comandos de shell (help, exit)
+    ├── navigation/      # Navegação (cd, pwd)
+    ├── filesystem/      # Sistema de arquivos (ls, cat, mkdir, etc)
+    └── system/          # Sistema (echo, clear, info, etc)
 ```
 
-## Contribuidores
-<a href="https://github.com/aencyco/aencyapp/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo=aenyco/aencyapp"/>
-</a>
+### Tecnologias Utilizadas
+
+- **Rust 1.70+** - Linguagem de programação
+- **colored** - Colorização de saída
+- **nix** - Chamadas de sistema POSIX
+- **gethostname** - Obtenção de hostname
+- **libc** - Bindings C
+
+## 🚀 Construção e Execução
+
+### Pré-requisitos
+- Rust 1.70 ou superior
+- Cargo
+
+### Build
+
+```bash
+# Build em modo debug
+cargo build
+
+# Build em modo release (otimizado)
+cargo build --release
+```
+
+### Execução
+
+```bash
+# Executar diretamente
+./target/debug/aensh
+
+# Ou com cargo
+cargo run
+
+# Ou com release
+./target/release/aensh
+```
+
+### Instalação
+
+```bash
+# Usar o script de instalação
+chmod +x install.sh
+./install.sh
+```
+
+## 📖 Exemplos de Uso
+
+```bash
+# Navegar entre diretórios
+gabriel machine ~ ❯ cd /tmp
+gabriel machine /tmp ❯ pwd
+/tmp
+
+# Listar arquivos
+gabriel machine /tmp ❯ ls
+📁 dir1/
+📄 file.txt (1.2KB)
+
+# Criar e manipular arquivos
+gabriel machine /tmp ❯ touch novo.txt
+✓ Arquivo novo.txt criado
+gabriel machine /tmp ❯ echo "Olá, Aensh!"
+Olá, Aensh!
+
+# Ver informações
+gabriel machine /tmp ❯ info
+══════════════════════════════════════════════════
+  Aensh - A Modern Shell in Rust
+══════════════════════════════════════════════════
+Versão: 0.2.0
+Usuário: gabriel
+Máquina: machine
+Linguagem: Rust 🦀
+══════════════════════════════════════════════════
+
+# Sair
+gabriel machine /tmp ❯ exit
+Até logo! 👋
+```
+
+## 🎨 Interface
+
+O Aensh apresenta uma interface moderna e intuitiva com:
+
+- **Prompt colorido** - Mostra usuário, máquina e diretório atual
+- **Ícones visuais** - Emojis para melhor visualização
+- **Mensagens de erro claras** - Feedback útil quando algo dá errado
+- **Cores temáticas** - Diferentes cores para diferentes tipos de saída
+
+## 🔒 Segurança
+
+O Aensh implementa várias medidas de segurança:
+
+- **Validação de entrada** - Bloqueia sequências perigosas (`&&`, `||`, `;`, `$()`)
+- **Sem execução de código arbitrário** - Comandos são validados antes da execução
+- **Memory-safe** - Rust garante segurança de memória em tempo de compilação
+- **Tratamento de sinais** - Captura SIGINT e SIGTERM corretamente
+
+## 📚 Próximas Melhorias
+
+- [ ] Histórico de comandos
+- [ ] Autocompletar com Tab
+- [ ] Pipes e redirecionamento
+- [ ] Variáveis de ambiente
+- [ ] Aliases de comandos
+- [ ] Scripts shell
+- [ ] Suporte a wildcards
+- [ ] Modo interativo melhorado
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para:
+
+1. Reportar bugs
+2. Sugerir novas funcionalidades
+3. Melhorar a documentação
+4. Enviar pull requests
+
+## 📄 Licença
+
+Este projeto é de código aberto e está disponível sob a licença MIT.
+
+## 🦀 Por que Rust?
+
+- **Segurança de memória** - Sem segfaults ou vazamentos de memória
+- **Performance** - Compilado para código nativo com otimizações
+- **Tooling moderno** - Cargo, rustfmt, clippy
+- **Type safety** - Erros detectados em tempo de compilação
+- **Concorrência segura** - Primitivas de concorrência thread-safe
+- **Comunidade ativa** - Ecossistema rico de bibliotecas
+
+## 📞 Suporte
+
+Para dúvidas ou problemas, abra uma issue no repositório.
+
+---
+
+**Versão:** 0.2.0  
+**Última atualização:** Dezembro 2024  
+**Desenvolvido com ❤️ em Rust**
