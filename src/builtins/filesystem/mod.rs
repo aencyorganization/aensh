@@ -8,3 +8,6 @@ pub mod mv;
 pub mod find;
 pub mod grep;
 pub mod tree;
+pub mod head;
+pub mod tail;
+pub mod wc;

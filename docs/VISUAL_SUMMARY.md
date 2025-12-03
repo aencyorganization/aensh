@@ -232,7 +232,7 @@ v0.5.0 ⏳ (Q3 2025)
 ├─ Scripts
 └─ Funções
 
-v1.0.0 ⏳ (Q4 2025)
+v0.1.0 ⏳ (Q4 2025)
 ├─ Jobs
 ├─ Configuração
 └─ Temas

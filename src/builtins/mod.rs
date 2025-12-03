@@ -12,6 +12,9 @@ pub const SUPPORTED_COMMANDS: &[(&str, &str)] = &[
     ("exit", "Encerra o shell"),
     ("quit", "Encerra o shell (alias para exit)"),
     ("plugin", "Gerencia plugins externos"),
+    ("alias", "Gerencia aliases de comandos"),
+    ("reload", "Recarrega configurações (~/.aenshrc)"),
+    ("source", "Carrega arquivo de configuração"),
     
     // Navigation
     ("cd", "Altera o diretório atual"),
@@ -28,6 +31,9 @@ pub const SUPPORTED_COMMANDS: &[(&str, &str)] = &[
     ("find", "Busca arquivos em diretórios"),
     ("grep", "Busca padrões em arquivos"),
     ("tree", "Mostra estrutura de diretórios em árvore"),
+    ("head", "Mostra as primeiras linhas de um arquivo"),
+    ("tail", "Mostra as últimas linhas de um arquivo"),
+    ("wc", "Conta linhas, palavras e caracteres"),
     
     // System
     ("echo", "Exibe texto na tela"),
@@ -36,6 +42,12 @@ pub const SUPPORTED_COMMANDS: &[(&str, &str)] = &[
     ("whoami", "Mostra o usuário atual"),
     ("date", "Mostra a data e hora atual"),
     ("stat", "Mostra informações de arquivo/diretório"),
+    ("env", "Mostra variáveis de ambiente"),
+    ("export", "Define variável de ambiente"),
+    ("unset", "Remove variável de ambiente"),
+    ("history", "Mostra histórico de comandos"),
+    ("which", "Mostra caminho de um comando"),
+    ("type", "Mostra tipo de um comando"),
 ];
 
 pub fn is_supported(name: &str) -> bool {
@@ -64,6 +76,9 @@ pub fn dispatch(command: &Command) -> AenshResult<()> {
         "find" => filesystem::find::run(&command.args),
         "grep" => filesystem::grep::run(&command.args),
         "tree" => filesystem::tree::run(&command.args),
+        "head" => filesystem::head::run(&command.args),
+        "tail" => filesystem::tail::run(&command.args),
+        "wc" => filesystem::wc::run(&command.args),
         
         // System
         "echo" => system::echo::run(&command.args),
@@ -72,7 +87,25 @@ pub fn dispatch(command: &Command) -> AenshResult<()> {
         "whoami" => system::whoami::run(&command.args),
         "date" => system::date::run(&command.args),
         "stat" => system::stat::run(&command.args),
+        "env" => system::env::run(&command.args),
+        "export" => system::export::run(&command.args),
+        "unset" => system::unset::run(&command.args),
+        "history" => system::history::run(&command.args),
+        "which" => system::which::run(&command.args),
+        "type" => system::type_cmd::run(&command.args),
         
         other => Err(crate::core::errors::AenshError::InvalidCommand(other.to_string())),
+    }
+}
+
+/// Dispatch with alias manager (for alias command)
+pub fn dispatch_with_alias(command: &Command, alias_manager: &mut crate::core::aliases::AliasManager) -> AenshResult<()> {
+    match command.name.as_str() {
+        "alias" => shell::alias::run(&command.args, alias_manager),
+        "reload" | "source" => {
+            alias_manager.reload();
+            Ok(())
+        }
+        _ => dispatch(command),
     }
 }

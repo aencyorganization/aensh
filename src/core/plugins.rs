@@ -8,29 +8,17 @@ use colored::*;
 
 use crate::core::errors::{AenshError, AenshResult};
 
-/// List of shell commands that are blocked (native shell commands)
+/// List of commands that are implemented by Aensh (blocked from external execution)
+/// Only commands that Aensh has built-in implementations for
 const BLOCKED_COMMANDS: &[&str] = &[
-    // Navigation/basic shell
-    "cd", "pwd", "ls", "dir",
-    // File operations
-    "cat", "cp", "mv", "rm", "mkdir", "rmdir", "touch",
-    // Search
-    "grep", "find", "locate", "which", "whereis",
-    // Text processing
-    "sed", "awk", "cut", "sort", "uniq", "wc", "head", "tail",
-    // System
-    "ps", "top", "htop", "kill", "killall", "bg", "fg", "jobs",
-    // Shell builtins
-    "echo", "printf", "read", "export", "unset", "alias", "unalias",
-    "source", ".", "exec", "eval", "set", "shift",
-    // Dangerous
-    "sudo", "su", "chmod", "chown", "chgrp",
-    // Network
-    "curl", "wget", "ssh", "scp", "rsync", "ping", "netstat", "ifconfig", "ip",
-    // Package managers
-    "apt", "apt-get", "yum", "dnf", "pacman", "brew", "snap", "flatpak",
-    // Shells
-    "bash", "sh", "zsh", "fish", "dash", "csh", "tcsh", "ksh",
+    // Shell commands (Aensh built-ins)
+    "help", "exit", "quit", "plugin", "alias", "reload", "source",
+    // Navigation (Aensh built-ins)
+    "cd", "pwd",
+    // Filesystem (Aensh built-ins)
+    "ls", "cat", "mkdir", "touch", "rm", "cp", "mv", "find", "grep", "tree", "head", "tail", "wc",
+    // System (Aensh built-ins)
+    "echo", "clear", "info", "whoami", "date", "stat", "env", "export", "unset", "history", "which", "type",
 ];
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

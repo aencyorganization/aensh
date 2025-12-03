@@ -221,13 +221,25 @@ fn execute_pipeline(pipeline: Pipeline, plugin_manager: &PluginManager) -> Aensh
                 }
             }
             PipelineSegment::External(cmd) => {
-                let output = crate::core::external::execute_external_with_capture(&cmd.name, &cmd.args)?;
-                
-                if is_last {
-                    print!("{}", String::from_utf8_lossy(&output));
-                    std::io::stdout().flush().ok();
+                if let Some(input) = prev_output.take() {
+                    // Has input from previous command
+                    if is_last {
+                        // Last command - output to stdout
+                        crate::core::external::execute_external_piped_final(&cmd.name, &cmd.args, &input)?;
+                    } else {
+                        // Middle command - capture output
+                        let output = crate::core::external::execute_external_with_input(&cmd.name, &cmd.args, &input)?;
+                        prev_output = Some(output);
+                    }
                 } else {
-                    prev_output = Some(output);
+                    // First command in pipeline
+                    let output = crate::core::external::execute_external_with_capture(&cmd.name, &cmd.args)?;
+                    if is_last {
+                        print!("{}", String::from_utf8_lossy(&output));
+                        std::io::stdout().flush().ok();
+                    } else {
+                        prev_output = Some(output);
+                    }
                 }
             }
         }
@@ -256,10 +268,7 @@ fn execute_segment(
 }
 
 fn execute_builtin_with_capture(cmd: &Command, _input: Option<Vec<u8>>) -> AenshResult<Vec<u8>> {
-    // For now, execute builtin and capture stdout
-    // This is a simplified version - full implementation would redirect stdout
-    
-    // Create a buffer to capture output
+    // For builtins that support piping, capture their output
     let mut output = Vec::new();
     
     match cmd.name.as_str() {
@@ -281,8 +290,52 @@ fn execute_builtin_with_capture(cmd: &Command, _input: Option<Vec<u8>>) -> Aensh
                 }
             }
         }
+        "ls" => {
+            // Use system ls for piping since our builtin doesn't support capture
+            let dir = cmd.args.first().map(|s| s.as_str()).unwrap_or(".");
+            if let Ok(entries) = std::fs::read_dir(dir) {
+                for entry in entries.flatten() {
+                    if let Some(name) = entry.file_name().to_str() {
+                        output.extend_from_slice(name.as_bytes());
+                        output.push(b'\n');
+                    }
+                }
+            }
+        }
+        "find" => {
+            // Simple find implementation for piping
+            let pattern = cmd.args.first().map(|s| s.as_str()).unwrap_or("*");
+            fn find_files(dir: &std::path::Path, pattern: &str, output: &mut Vec<u8>) {
+                if let Ok(entries) = std::fs::read_dir(dir) {
+                    for entry in entries.flatten() {
+                        let path = entry.path();
+                        let name = entry.file_name().to_string_lossy().to_string();
+                        if name.contains(pattern) || pattern == "*" {
+                            output.extend_from_slice(path.to_string_lossy().as_bytes());
+                            output.push(b'\n');
+                        }
+                        if path.is_dir() {
+                            find_files(&path, pattern, output);
+                        }
+                    }
+                }
+            }
+            find_files(std::path::Path::new("."), pattern, &mut output);
+        }
+        "whoami" => {
+            if let Ok(user) = std::env::var("USER") {
+                output.extend_from_slice(user.as_bytes());
+                output.push(b'\n');
+            }
+        }
+        "date" => {
+            use std::process::Command as StdCommand;
+            if let Ok(out) = StdCommand::new("date").output() {
+                output.extend_from_slice(&out.stdout);
+            }
+        }
         _ => {
-            // For other builtins, just execute normally
+            // For other builtins, just execute normally (no capture)
             builtins::dispatch(cmd)?;
         }
     }

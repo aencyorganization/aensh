@@ -104,7 +104,7 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - [ ] Scripts shell
 - [ ] Modo batch
 
-### v1.0.0
+### v0.1.0
 - [ ] Suporte a jobs
 - [ ] Modo interativo completo
 - [ ] Configuração customizável

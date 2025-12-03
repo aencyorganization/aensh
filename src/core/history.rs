@@ -106,6 +106,23 @@ impl History {
     pub fn reset_position(&mut self) {
         self.position = self.entries.len();
     }
+
+    /// Returns all history entries
+    pub fn entries(&self) -> &[String] {
+        &self.entries
+    }
+
+    /// Returns the number of entries
+    #[allow(dead_code)]
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+
+    /// Returns true if history is empty
+    #[allow(dead_code)]
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
 }
 
 impl Default for History {

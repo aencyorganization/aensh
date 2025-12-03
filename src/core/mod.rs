@@ -1,3 +1,4 @@
+pub mod aliases;
 pub mod banner;
 pub mod command;
 pub mod config;
@@ -8,10 +9,13 @@ pub mod pipeline;
 pub mod plugins;
 pub mod prompt;
 pub mod readline;
+pub mod setup;
 
+pub use aliases::AliasManager;
 pub use banner::show_banner;
 pub use config::Config;
 pub use pipeline::{parse_command_chain, execute_chain};
 pub use plugins::PluginManager;
 pub use prompt::build_prompt;
 pub use readline::ReadLine;
+pub use setup::check_and_run_setup;

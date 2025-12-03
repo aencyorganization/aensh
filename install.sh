@@ -101,6 +101,17 @@ install_binary() {
     echo "📦 Instalando..."
     
     mkdir -p "$INSTALL_DIR"
+    
+    # Check if aensh is running and kill it
+    if [ -f "$INSTALL_DIR/aensh" ]; then
+        # Try to remove the old binary, if busy, rename it first
+        if ! rm -f "$INSTALL_DIR/aensh" 2>/dev/null; then
+            echo "⚠️  Binário em uso, substituindo..."
+            mv "$INSTALL_DIR/aensh" "$INSTALL_DIR/aensh.old" 2>/dev/null || true
+            rm -f "$INSTALL_DIR/aensh.old" 2>/dev/null || true
+        fi
+    fi
+    
     cp target/release/aensh "$INSTALL_DIR/aensh"
     chmod +x "$INSTALL_DIR/aensh"
     
