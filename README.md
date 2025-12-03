@@ -113,12 +113,13 @@ O Aensh foi criado como uma alternativa moderna aos shells tradicionais (bash, z
 
 O Aensh inclui **30+ comandos built-in** implementados em Rust puro:
 
-```
-Shell:      help, exit, quit, alias, reload, source, plugin
-Navegação:  cd, pwd
-Filesystem: ls, cat, mkdir, touch, rm, cp, mv, find, grep, tree, head, tail, wc
-Sistema:    echo, clear, info, whoami, date, stat, env, export, unset, history, which, type
-```
+| Categoria | Comandos |
+|-----------|----------|
+| Shell | help, exit, quit, alias, reload, source, plugin |
+| Navegação | cd, pwd |
+| Filesystem | ls, cat, mkdir, touch, rm, cp, mv, find, grep, tree, head, tail, wc |
+| Sistema | echo, clear, info, whoami, date, stat, env, export, unset, history, which, type |
+
 
 ### Compatibilidade
 
