@@ -15,7 +15,7 @@ Exemplos práticos e úteis de como usar o Aensh.
  / ___ \  __/ | | \__ \ | | |
 /_/   \_\___|_| |_|___/_| |_|
 
-Bem-vindo ao Aensh v0.2.0 - use 'help' para começar
+Bem-vindo ao Aensh v0.1.0 - use 'help' para começar
 
 gabriel machine ~ ❯ 
 ```

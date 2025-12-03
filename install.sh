@@ -189,6 +189,10 @@ main() {
     echo "   rm -f $INSTALL_DIR/aensh"
     echo "   rm -rf $CONFIG_DIR"
     echo ""
+
+    # Volta para o diretório HOME do usuário para que o restante do fluxo
+    # (como abrir um novo terminal) aconteça a partir de ~/
+    cd "$HOME" || true
 }
 
 main "$@"

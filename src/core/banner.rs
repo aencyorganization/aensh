@@ -12,6 +12,6 @@ pub fn show_banner() {
     println!("{}", AENSH_FIGLET.bright_magenta().bold());
     println!(
         "{}\n",
-        "Bem-vindo ao Aensh v0.2.0 - use 'help' para começar".bright_white()
+        "Bem-vindo ao Aensh v0.1.0 - use 'help' para começar".bright_white()
     );
 }

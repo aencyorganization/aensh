@@ -28,12 +28,15 @@ fn print_help() {
     println!("    {}         Mostra configuração atual", "--config".green());
     println!("    {}  Define Aensh como shell padrão", "--default true".green());
     println!("    {} Remove Aensh como shell padrão", "--default false".green());
+    println!("    {}  Integração forte (usa chsh quando habilitado)", "--system-default true".green());
+    println!("    {} Remove integração forte", "--system-default false".green());
     println!("    {}      Executa um comando e sai", "-c <cmd>".green());
     println!();
     println!("{}", "EXEMPLOS:".yellow().bold());
     println!("    aensh                    # Inicia o shell");
     println!("    aensh --setup            # Re-executa o setup");
     println!("    aensh --default true     # Define como shell padrão");
+    println!("    AENSH_ENABLE_CHSH=1 aensh --system-default true  # Tenta virar shell de login");
     println!("    aensh -c \"ls -la\"        # Executa comando e sai");
     println!("    aensh --info             # Mostra info do sistema");
     println!();
@@ -67,6 +70,50 @@ fn handle_args() -> bool {
     match args[1].as_str() {
         "--help" | "-h" => {
             print_help();
+            true
+        }
+        "--system-default" => {
+            if args.len() < 3 {
+                eprintln!("{} --system-default requer 'true' ou 'false'", "Erro:".red());
+                return true;
+            }
+
+            let mut config = Config::load();
+
+            // Check if setup was completed
+            if config.needs_setup() {
+                eprintln!("{} Execute o Aensh primeiro para completar o setup inicial.", "Erro:".red());
+                return true;
+            }
+
+            // Sinaliza que podemos tentar integração forte via chsh.
+            env::set_var("AENSH_ENABLE_CHSH", "1");
+
+            match args[2].as_str() {
+                "true" | "1" | "yes" => {
+                    match config.set_default_shell(true) {
+                        Ok(_) => {
+                            let shell_name = config.previous_shell.map(|s| s.name()).unwrap_or("shell");
+                            println!("{} Aensh definido como shell padrão com integração forte!", "✓".green());
+                            println!("  Script adicionado ao seu {} e, se possível, chsh foi utilizado.", shell_name.bright_cyan());
+                        }
+                        Err(e) => eprintln!("{} Falha ao configurar: {}", "✗".red(), e),
+                    }
+                }
+                "false" | "0" | "no" => {
+                    match config.set_default_shell(false) {
+                        Ok(_) => {
+                            let shell_name = config.previous_shell.map(|s| s.name()).unwrap_or("shell");
+                            println!("{} Integração forte removida; shell anterior restaurado quando possível.", "✓".green());
+                            println!("  Script removido do seu {}.", shell_name.bright_cyan());
+                        }
+                        Err(e) => eprintln!("{} Falha ao configurar: {}", "✗".red(), e),
+                    }
+                }
+                other => {
+                    eprintln!("{} Valor inválido '{}'. Use 'true' ou 'false'.", "Erro:".red(), other);
+                }
+            }
             true
         }
         "--version" | "-v" => {

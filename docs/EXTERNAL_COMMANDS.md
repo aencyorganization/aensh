@@ -199,4 +199,4 @@ aensh> mypwd
 
 ---
 
-**Versão:** 0.2.0 | **Última atualização:** Dezembro 2024
+**Versão:** 0.1.0 | **Última atualização:** Dezembro 2024

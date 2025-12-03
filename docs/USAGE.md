@@ -19,10 +19,46 @@ Você verá o banner de boas-vindas e o prompt:
  / ___ \  __/ | | \__ \ | | |
 /_/   \_\___|_| |_|___/_| |_|
 
-Bem-vindo ao Aensh v0.2.0 - use 'help' para começar
+Bem-vindo ao Aensh v0.1.0 - use 'help' para começar
 
 gabriel machine ~ ❯ 
 ```
+
+## 🧩 Modos de Uso como Shell
+
+### 1. Uso normal (programa comum)
+
+```bash
+aensh           # roda o shell e não mexe no seu shell padrão
+```
+
+### 2. Shell padrão via RC (`--default`)
+
+Adiciona um bloco no RC do seu shell anterior (`.bashrc`, `.zshrc`, `config.fish`) para iniciar o Aensh automaticamente:
+
+```bash
+aensh --default true   # ativa
+aensh --default false  # desativa
+```
+
+Esse modo **não tenta** alterar o shell de login do sistema.
+
+### 3. Integração forte (`--system-default`)
+
+Quando você quiser que o Aensh tente se tornar também o shell de login via `chsh`, use a opção `--system-default` junto com a variável de ambiente `AENSH_ENABLE_CHSH`:
+
+```bash
+# Ativar integração forte (se possível)
+AENSH_ENABLE_CHSH=1 aensh --system-default true
+
+# Remover integração forte e tentar restaurar o shell anterior
+AENSH_ENABLE_CHSH=1 aensh --system-default false
+```
+
+Regras de segurança:
+- Se `AENSH_ENABLE_CHSH` **não** estiver definida, `--system-default` se comporta como `--default`.
+- Antes de chamar `chsh`, o Aensh verifica se o caminho alvo existe e está em `/etc/shells`.
+- Se não houver nenhum shell válido para restaurar, o Aensh apenas remove o bloco de RC e não força nenhum ajuste de sistema.
 
 ## 📚 Comandos de Shell
 

@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::PathBuf;
+use std::process::Command;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum PreviousShell {
@@ -116,9 +117,127 @@ impl Config {
         // Update shell rc file based on previous shell
         if let Some(shell) = self.previous_shell {
             Self::update_shell_rc(shell, enabled)?;
+
+            // Opcionalmente, tentar alterar o shell de login via `chsh`.
+            // Isso só é feito se o usuário habilitar explicitamente via
+            // variável de ambiente, e apenas se o shell alvo existir e
+            // estiver listado em /etc/shells. Caso contrário, ignoramos.
+            if Self::should_attempt_chsh() {
+                if enabled {
+                    if let Err(e) = Self::set_login_shell_to_aensh() {
+                        eprintln!("[aensh] Aviso: não foi possível definir Aensh como shell de login via chsh: {}", e);
+                    }
+                } else {
+                    if let Err(e) = Self::restore_login_shell(shell) {
+                        eprintln!("[aensh] Aviso: não foi possível restaurar o shell de login anterior via chsh: {}", e);
+                    }
+                }
+            }
         }
         
         Ok(())
+    }
+
+    /// Verifica se devemos tentar rodar `chsh`.
+    /// Isso só é verdadeiro quando a variável de ambiente AENSH_ENABLE_CHSH
+    /// estiver definida como "1" ou "true" (case-insensitive).
+    fn should_attempt_chsh() -> bool {
+        match std::env::var("AENSH_ENABLE_CHSH") {
+            Ok(v) => {
+                let v = v.to_lowercase();
+                v == "1" || v == "true" || v == "yes" || v == "on"
+            }
+            Err(_) => false,
+        }
+    }
+
+    /// Best-effort attempt to set the current user's login shell to the
+    /// currently running Aensh binary using `chsh -s <path>`.
+    fn set_login_shell_to_aensh() -> std::io::Result<()> {
+        let exe = std::env::current_exe()?;
+        let exe_str = exe
+            .to_str()
+            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "Caminho do binário Aensh inválido"))?;
+
+        Self::run_chsh(exe_str)
+    }
+
+    /// Best-effort attempt to restore the login shell to the previously
+    /// selected shell (Bash/Zsh/Fish) using `chsh -s <path>`.
+    fn restore_login_shell(shell: PreviousShell) -> std::io::Result<()> {
+        // Tenta uma lista de caminhos comuns para cada shell. O primeiro
+        // caminho existente e aceito em /etc/shells será usado. Se nenhum
+        // for encontrado, não fazemos nada (Aensh continua funcional sem
+        // depender de outro shell para existir).
+        let candidates: &[&str] = match shell {
+            PreviousShell::Bash => &[
+                "/bin/bash",
+                "/usr/bin/bash",
+            ],
+            PreviousShell::Zsh => &[
+                "/bin/zsh",
+                "/usr/bin/zsh",
+            ],
+            PreviousShell::Fish => &[
+                "/usr/bin/fish",
+                "/bin/fish",
+            ],
+        };
+
+        for path in candidates {
+            if fs::metadata(path).is_ok() && Self::is_shell_allowed_in_etc_shells(path) {
+                return Self::run_chsh(path);
+            }
+        }
+
+        // Nenhum shell de fallback viável encontrado; simplesmente não
+        // alteramos o shell de login. Isso mantém o sistema estável mesmo
+        // que o shell anterior não exista mais.
+        Ok(())
+    }
+
+    /// Run `chsh -s <shell_path>` for the current user. This will typically
+    /// prompt for the user's password. Antes de chamar `chsh`, verificamos
+    /// se o caminho existe e se está listado em /etc/shells; caso contrário,
+    /// retornamos sucesso sem fazer nada.
+    fn run_chsh(shell_path: &str) -> std::io::Result<()> {
+        // Se o alvo não existe, não fazemos nada.
+        if fs::metadata(shell_path).is_err() {
+            return Ok(());
+        }
+
+        // Se /etc/shells não existir ou não contiver o caminho, não forçamos
+        // nenhum ajuste de sistema.
+        if !Self::is_shell_allowed_in_etc_shells(shell_path) {
+            return Ok(());
+        }
+
+        let status = Command::new("chsh")
+            .arg("-s")
+            .arg(shell_path)
+            .status()?;
+
+        if status.success() {
+            Ok(())
+        } else {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                format!("chsh retornou código de saída {:?}", status.code()),
+            ))
+        }
+    }
+
+    /// Verifica se o shell informado está listado em /etc/shells. Se o
+    /// arquivo não existir ou não puder ser lido, retorna false.
+    fn is_shell_allowed_in_etc_shells(shell_path: &str) -> bool {
+        if let Ok(contents) = fs::read_to_string("/etc/shells") {
+            for line in contents.lines() {
+                if line.trim() == shell_path {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     fn update_shell_rc(shell: PreviousShell, enabled: bool) -> std::io::Result<()> {

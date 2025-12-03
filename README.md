@@ -239,6 +239,8 @@ aensh --help
 | `--config` | Mostra configuração atual |
 | `--default true` | Define Aensh como shell padrão |
 | `--default false` | Remove Aensh como shell padrão |
+| `--system-default true` | Modo integração forte (usa `chsh` quando permitido) |
+| `--system-default false` | Remove integração forte e tenta restaurar shell anterior |
 | `-c <cmd>` | Executa comando e sai |
 
 ### Setup Inicial
@@ -264,6 +266,20 @@ Escolha (1-3):
 O setup pergunta:
 1. **Shell anterior**: Bash, Zsh ou Fish
 2. **Shell padrão**: Se deseja que o Aensh inicie automaticamente
+
+> **Integração forte (opcional):**
+> Por padrão, `--default true` apenas adiciona um bloco no arquivo RC do seu shell anterior.
+> Para tentar também mudar o *login shell* via `chsh`, use:
+>
+> ```bash
+> AENSH_ENABLE_CHSH=1 aensh --system-default true
+> ```
+>
+> Isso só terá efeito se o caminho do shell estiver listado em `/etc/shells`. Para desfazer:
+>
+> ```bash
+> AENSH_ENABLE_CHSH=1 aensh --system-default false
+> ```
 
 ### Definir como Shell Padrão
 
