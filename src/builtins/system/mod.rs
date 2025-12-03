@@ -10,3 +10,4 @@ pub mod unset;
 pub mod history;
 pub mod which;
 pub mod type_cmd;
+pub mod aetchy;
