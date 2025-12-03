@@ -36,7 +36,7 @@ fn print_help() {
     println!("    aensh                    # Inicia o shell");
     println!("    aensh --setup            # Re-executa o setup");
     println!("    aensh --default true     # Define como shell padrão");
-    println!("    AENSH_ENABLE_CHSH=1 aensh --system-default true  # Tenta virar shell de login");
+    println!("    aensh --system-default true  # Integração forte: tenta virar shell de login");
     println!("    aensh -c \"ls -la\"        # Executa comando e sai");
     println!("    aensh --info             # Mostra info do sistema");
     println!();

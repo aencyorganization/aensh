@@ -272,13 +272,13 @@ O setup pergunta:
 > Para tentar também mudar o *login shell* via `chsh`, use:
 >
 > ```bash
-> AENSH_ENABLE_CHSH=1 aensh --system-default true
+> aensh --system-default true
 > ```
 >
 > Isso só terá efeito se o caminho do shell estiver listado em `/etc/shells`. Para desfazer:
 >
 > ```bash
-> AENSH_ENABLE_CHSH=1 aensh --system-default false
+> aensh --system-default false
 > ```
 
 ### Definir como Shell Padrão

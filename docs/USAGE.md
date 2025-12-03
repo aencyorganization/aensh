@@ -45,18 +45,18 @@ Esse modo **não tenta** alterar o shell de login do sistema.
 
 ### 3. Integração forte (`--system-default`)
 
-Quando você quiser que o Aensh tente se tornar também o shell de login via `chsh`, use a opção `--system-default` junto com a variável de ambiente `AENSH_ENABLE_CHSH`:
+Quando você quiser que o Aensh tente se tornar também o shell de login via `chsh`, use a opção `--system-default` diretamente:
 
 ```bash
 # Ativar integração forte (se possível)
-AENSH_ENABLE_CHSH=1 aensh --system-default true
+aensh --system-default true
 
 # Remover integração forte e tentar restaurar o shell anterior
-AENSH_ENABLE_CHSH=1 aensh --system-default false
+aensh --system-default false
 ```
 
 Regras de segurança:
-- Se `AENSH_ENABLE_CHSH` **não** estiver definida, `--system-default` se comporta como `--default`.
+- O comando `--system-default` continua atualizando o arquivo RC do shell anterior, como `--default`.
 - Antes de chamar `chsh`, o Aensh verifica se o caminho alvo existe e está em `/etc/shells`.
 - Se não houver nenhum shell válido para restaurar, o Aensh apenas remove o bloco de RC e não força nenhum ajuste de sistema.
 

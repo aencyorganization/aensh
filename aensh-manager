@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Aensh Manager - atualiza ou remove o Aensh e o próprio manager
+
+set -e
+
+REPO_RAW_BASE="https://raw.githubusercontent.com/aencyorganization/aensh/main"
+INSTALL_SCRIPT_URL="$REPO_RAW_BASE/install.sh"
+
+show_help() {
+    echo "Uso: aensh-manager [comando]"
+    echo
+    echo "Comandos disponíveis:"
+    echo "  update      Baixa e executa o instalador mais recente do Aensh"
+    echo "  uninstall   Remove o Aensh e o aensh-manager do usuário atual"
+    echo
+    echo "Exemplos:"
+    echo "  aensh-manager update"
+    echo "  aensh-manager uninstall"
+}
+
+cmd="${1:-update}"
+
+case "$cmd" in
+    update|upgrade)
+        echo "🔄 Atualizando Aensh (e aensh-manager, se houver mudanças)..."
+        echo "   Baixando instalador em: $INSTALL_SCRIPT_URL"
+        curl -sSL "$INSTALL_SCRIPT_URL" | bash
+        echo "✅ Atualização concluída."
+        ;;
+    uninstall|remove)
+        echo "🗑️  Removendo Aensh e aensh-manager para o usuário atual..."
+        BIN_DIR="$HOME/.local/bin"
+        CONFIG_DIR="$HOME/.config/aensh"
+
+        rm -f "$BIN_DIR/aensh" 2>/dev/null || true
+        rm -f "$BIN_DIR/aensh-manager" 2>/dev/null || true
+        rm -rf "$CONFIG_DIR" 2>/dev/null || true
+
+        echo "✅ Remoção concluída."
+        ;;
+    -h|--help|help)
+        show_help
+        ;;
+    *)
+        echo "✗ Comando desconhecido: $cmd" >&2
+        echo >&2
+        show_help >&2
+        exit 1
+        ;;
+esac

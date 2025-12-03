@@ -9,6 +9,7 @@ set -e
 REPO_URL="https://github.com/aencyorganization/aensh"
 INSTALL_DIR="$HOME/.local/bin"
 CONFIG_DIR="$HOME/.config/aensh"
+MANAGER_URL="https://raw.githubusercontent.com/aencyorganization/aensh/main/aensh-manager"
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
@@ -102,7 +103,7 @@ install_binary() {
     
     mkdir -p "$INSTALL_DIR"
     
-    # Check if aensh is running and kill it
+    # Check if aensh is running and replace it com segurança
     if [ -f "$INSTALL_DIR/aensh" ]; then
         # Try to remove the old binary, if busy, rename it first
         if ! rm -f "$INSTALL_DIR/aensh" 2>/dev/null; then
@@ -114,8 +115,22 @@ install_binary() {
     
     cp target/release/aensh "$INSTALL_DIR/aensh"
     chmod +x "$INSTALL_DIR/aensh"
-    
     echo "✓ Binário instalado em $INSTALL_DIR/aensh"
+
+    # Instala o aensh-manager (script de gerenciamento)
+    if [ -f "aensh-manager" ]; then
+        cp "aensh-manager" "$INSTALL_DIR/aensh-manager"
+        chmod +x "$INSTALL_DIR/aensh-manager"
+        echo "✓ Manager instalado em $INSTALL_DIR/aensh-manager"
+    else
+        echo "🔄 Baixando aensh-manager..."
+        if curl -fsSL "$MANAGER_URL" -o "$INSTALL_DIR/aensh-manager"; then
+            chmod +x "$INSTALL_DIR/aensh-manager"
+            echo "✓ Manager instalado em $INSTALL_DIR/aensh-manager (via download)"
+        else
+            echo "⚠️  Não foi possível baixar o aensh-manager em $MANAGER_URL" >&2
+        fi
+    fi
 }
 
 # Setup config directories
@@ -179,15 +194,23 @@ main() {
     echo "⚙️  Para definir como shell padrão:"
     echo "   aensh --default true"
     echo ""
+    echo "🧩 Integração forte (tentar virar shell de login):"
+    echo "   aensh --system-default true"
+    echo ""
     echo "🔌 Diretório de plugins:"
     echo "   $CONFIG_DIR/plugins/"
     echo ""
     echo "⚠️  Se 'aensh' não for encontrado, reinicie o terminal ou execute:"
     echo "   source ~/.bashrc  # ou ~/.zshrc"
     echo ""
-    echo "🗑️  Para desinstalar:"
+    echo "🗑️  Para desinstalar manualmente:"
     echo "   rm -f $INSTALL_DIR/aensh"
+    echo "   rm -f $INSTALL_DIR/aensh-manager"
     echo "   rm -rf $CONFIG_DIR"
+    echo ""
+    echo "🧰 Para gerenciar (atualizar/remover) depois:"
+    echo "   aensh-manager update"
+    echo "   aensh-manager uninstall"
     echo ""
 
     # Volta para o diretório HOME do usuário para que o restante do fluxo
