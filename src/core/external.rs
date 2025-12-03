@@ -1,16 +1,30 @@
 use std::process::{Command, Stdio, Child};
 use std::io::Write;
 use crate::core::errors::{AenshError, AenshResult};
+use nix::sys::signal::{self, SigHandler, Signal};
 
 /// Executa um comando externo de forma interativa (para comandos como cmatrix, vim, etc)
 pub fn execute_external(cmd: &str, args: &[String]) -> AenshResult<()> {
     let mut command = Command::new(cmd);
-    command.args(args)
+    command
+        .args(args)
         .stdin(Stdio::inherit())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit());
 
-    let status = command.status()
+    // Enquanto o comando externo roda, o shell deve ignorar SIGINT (Ctrl+C)
+    // para que apenas o processo filho seja encerrado.
+    let old_handler = unsafe {
+        signal::signal(Signal::SIGINT, SigHandler::SigIgn)
+            .map_err(|e| AenshError::Io(format!("Falha ao configurar sinal: {}", e)))?
+    };
+
+    let status_result = command.status();
+
+    // Restaura o handler original de SIGINT, independentemente do resultado
+    let _ = unsafe { signal::signal(Signal::SIGINT, old_handler) };
+
+    let status = status_result
         .map_err(|e| AenshError::Io(format!("Falha ao executar '{}': {}", cmd, e)))?;
 
     // Ignore non-zero exit codes (normal for Ctrl+C, etc)
